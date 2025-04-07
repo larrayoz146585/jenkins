@@ -4,36 +4,34 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/larrayoz146585/jenkins.git'
+                // Obtén el código de la rama "feature" para CI
+                git branch: 'feature', url: 'https://github.com/larrayoz146585/jenkins.git'
             }
         }
         stage('Fix Permissions') {
             steps {
+                // Asegúrate de que los scripts tengan los permisos adecuados
                 sh 'chmod +x ./build.sh'
                 sh 'chmod +x ./test.sh'
-                sh 'chmod +x ./deploy.sh'
             }
         }
         stage('Build') {
             steps {
+                // Ejecuta el script de compilación
                 sh './build.sh'
             }
         }
         stage('Test') {
             steps {
+                // Ejecuta las pruebas del proyecto
                 sh './test.sh'
             }
         }
-        stage('Deploy (host)') {
-            steps {
-                sh './deploy.sh'
-            }
-        }
-        stage('Deploy (docker)') {
-            steps {
-                sh 'docker build -t flask-app .'
-                sh 'docker run -d --rm -p 8000:5000 --name flask-app flask-app'
-            }
+    }
+
+    post {
+        always {
+            echo 'Pipeline de CI finalizado'
         }
     }
 }
