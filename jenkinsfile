@@ -9,11 +9,13 @@ pipeline {
         }
         stage('Build') {
             steps {
+                sh "chmod +x -R ${env.WORKSPACE}"
                 sh './build.sh'
             }
         }
         stage('Test') {
             steps {
+                sh "chmod +x -R ${env.WORKSPACE}"
                 sh './test.sh'
             }
         }
@@ -28,13 +30,7 @@ pipeline {
                 sh 'docker run -d --rm -p 8000:5000 --name flask-app flask-app'
             }
         }
-        stage('Fix Permissions') {
-            steps {
-                script {
-                    // Forzar permisos en build.sh dentro del contenedor
-                    sh 'chmod 755 build.sh'
-                }
-            }
+        
 }
 
 
