@@ -28,5 +28,11 @@ pipeline {
                 sh 'docker run -d --rm -p 8000:5000 --name flask-app flask-app'
             }
         }
+        stage('List Files') {
+            steps {
+                sh 'ls -la'
+            }
+}
+
     }
 }
