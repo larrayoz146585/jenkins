@@ -4,36 +4,59 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
+                // Clona la rama "main" (o cambia a 'feature' si quieres esa)
                 git branch: 'main', url: 'https://github.com/larrayoz146585/jenkins.git'
             }
         }
+
         stage('Fix Permissions') {
             steps {
+                // Da permisos de ejecución a los scripts
                 sh 'chmod +x ./build.sh'
                 sh 'chmod +x ./test.sh'
                 sh 'chmod +x ./deploy.sh'
             }
         }
+
         stage('Build') {
             steps {
                 sh './build.sh'
             }
         }
+
         stage('Test') {
             steps {
                 sh './test.sh'
             }
         }
+
         stage('Deploy (host)') {
             steps {
                 sh './deploy.sh'
             }
         }
+
         stage('Deploy (docker)') {
             steps {
-                sh 'docker build -t flask-app .'
-                sh 'docker run -d --rm -p 8000:5000 --name flask-app flask-app'
+                script {
+                    // Elimina el contenedor si ya existe
+                    sh 'docker rm -f flask-app || true'
+
+                    // Construye la imagen
+                    sh 'docker build -t flask-app .'
+
+                    // Ejecuta el contenedor
+                    sh 'docker run -d --rm -p 8000:5000 --name flask-app flask-app'
+                }
             }
+        }
+    }
+
+    post {
+        always {
+            echo 'Pipeline finalizado'
+            // Limpieza: intenta eliminar el contenedor si sigue corriendo
+            sh 'docker rm -f flask-app || true'
         }
     }
 }
