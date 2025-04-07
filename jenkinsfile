@@ -34,6 +34,12 @@ pipeline {
                 sh 'cat build.sh'    // Verificar el contenido del archivo para asegurarte de que es correcto
             }
         }
+        stage('Check Directory Permissions') {
+            steps {
+                sh 'ls -ld /var/jenkins_home/workspace/cd-main'  // Verificar permisos del directorio
+            }
+        }
+
 
 
 
