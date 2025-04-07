@@ -7,15 +7,20 @@ pipeline {
                 git branch: 'main', url: 'https://github.com/larrayoz146585/jenkins.git'
             }
         }
+        stage('Fix Permissions') {
+            steps {
+                sh 'chmod +x ./build.sh'
+                sh 'chmod +x ./test.sh'
+                sh 'chmod +x ./deploy.sh'
+            }
+        }
         stage('Build') {
             steps {
-                sh "chmod +x -R ${env.WORKSPACE}"
                 sh './build.sh'
             }
         }
         stage('Test') {
             steps {
-                sh "chmod +x -R ${env.WORKSPACE}"
                 sh './test.sh'
             }
         }
@@ -30,13 +35,5 @@ pipeline {
                 sh 'docker run -d --rm -p 8000:5000 --name flask-app flask-app'
             }
         }
-        
-}
-
-
-
-
-
-
     }
 }
