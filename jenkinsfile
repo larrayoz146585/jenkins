@@ -28,17 +28,15 @@ pipeline {
                 sh 'docker run -d --rm -p 8000:5000 --name flask-app flask-app'
             }
         }
-        stage('Check Permissions') {
+        stage('Fix Permissions') {
             steps {
-                sh 'ls -l build.sh'  // Verificar los permisos del archivo
-                sh 'cat build.sh'    // Verificar el contenido del archivo para asegurarte de que es correcto
+                script {
+                    // Forzar permisos en build.sh dentro del contenedor
+                    sh 'chmod 755 build.sh'
+                }
             }
-        }
-        stage('Check Directory Permissions') {
-            steps {
-                sh 'ls -ld /var/jenkins_home/workspace/cd-main'  // Verificar permisos del directorio
-            }
-        }
+}
+
 
 
 
