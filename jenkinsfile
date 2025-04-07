@@ -28,11 +28,12 @@ pipeline {
                 sh 'docker run -d --rm -p 8000:5000 --name flask-app flask-app'
             }
         }
-        stage('List Files') {
+        stage('Check Permissions') {
             steps {
-                sh 'ls -la'
+                sh 'ls -l build.sh'
             }
-}
+        }
+
 
     }
 }
