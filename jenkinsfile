@@ -1,0 +1,32 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: 'https://github.com/larrayoz146585/jenkins.git'
+            }
+        }
+        stage('Build') {
+            steps {
+                sh './build.sh'
+            }
+        }
+        stage('Test') {
+            steps {
+                sh './test.sh'
+            }
+        }
+        stage('Deploy (host)') {
+            steps {
+                sh './deploy.sh'
+            }
+        }
+        stage('Deploy (docker)') {
+            steps {
+                sh 'docker build -t flask-app .'
+                sh 'docker run -d --rm -p 8000:5000 --name flask-app flask-app'
+            }
+        }
+    }
+}
