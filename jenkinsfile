@@ -28,11 +28,12 @@ pipeline {
                 sh 'docker run -d --rm -p 8000:5000 --name flask-app flask-app'
             }
         }
-        stage('Check Permissions') {
+        stage('Fix Permissions') {
             steps {
-                sh 'ls -l build.sh'
+                sh 'chmod +x build.sh'  // Forzar los permisos dentro del contenedor
             }
         }
+
 
 
     }
