@@ -44,10 +44,14 @@ pipeline {
                 script {
                     def timestamp = new Date().format("yyyyMMdd_HHmmss")
                     def fileName = "resultados/hashes/hashes_${timestamp}.txt"
-                    def targetPath = "JENKINS_HOME/workspace/folderName/subfolderName/projectNameFile"
+                    def targetPath = "${env.WORKSPACE}/pipeline-seguridad" // Ajusta la ruta aquí
                     sh """
                         echo "Calculando SHA-256 de los ficheros en ${targetPath}" > ${fileName}
-                        find ${targetPath} -type f -exec sha256sum {} \\; >> ${fileName}
+                        if [ -d "${targetPath}" ]; then
+                            find ${targetPath} -type f -exec sha256sum {} \\; >> ${fileName}
+                        else
+                            echo "Ruta no encontrada: ${targetPath}" >> ${fileName}
+                        fi
                     """
                 }
             }
