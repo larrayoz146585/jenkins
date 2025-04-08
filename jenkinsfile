@@ -1,62 +1,50 @@
 pipeline {
     agent any
-
     stages {
-        stage('Checkout') {
-            steps {
-                // Clona la rama "main" (o cambia a 'feature' si quieres esa)
-                git branch: 'main', url: 'https://github.com/larrayoz146585/jenkins.git'
-            }
-        }
-
-        stage('Fix Permissions') {
-            steps {
-                // Da permisos de ejecución a los scripts
-                sh 'chmod +x ./build.sh'
-                sh 'chmod +x ./test.sh'
-                sh 'chmod +x ./deploy.sh'
-            }
-        }
-
-        stage('Build') {
-            steps {
-                sh './build.sh'
-            }
-        }
-
-        stage('Test') {
-            steps {
-                sh './test.sh'
-            }
-        }
-
-        stage('Deploy (host)') {
-            steps {
-                sh './deploy.sh'
-            }
-        }
-
-        stage('Deploy (docker)') {
+        stage('Obtener versiones y volcarlas en un fichero') {
             steps {
                 script {
-                    // Elimina el contenedor si ya existe
-                    sh 'docker rm -f flask-app || true'
-
-                    // Construye la imagen
-                    sh 'docker build -t flask-app .'
-
-                    // Ejecuta el contenedor
-                    sh 'docker run -d --rm -p 8000:5000 --name flask-app flask-app'
+                    def timestamp = new Date().format("yyyyMMdd_HHmmss")
+                    def fileName = "resultados/versiones/versiones_${timestamp}.txt"
+                    sh """
+                        echo "Java Version:" > ${fileName}
+                        java -version 2>> ${fileName}
+                        echo "Jenkins Version:" >> ${fileName}
+                        curl -s http://localhost:8080/api/json?pretty=true | jq '.version' >> ${fileName}
+                    """
+                }
+            }
+        }
+        stage('Escanear IP local y guardar puertos abiertos') {
+            steps {
+                script {
+                    def timestamp = new Date().format("yyyyMMdd_HHmmss")
+                    def fileName = "resultados/puertos/puertos_abiertos_${timestamp}.txt"
+                    sh """
+                        ip=$(hostname -I | awk '{print $1}')
+                        echo "Escaneando IP: $ip" > ${fileName}
+                        nmap -p- $ip >> ${fileName}
+                    """
+                }
+            }
+        }
+        stage('Calcular SHA-256 de los ficheros en una ruta') {
+            steps {
+                script {
+                    def timestamp = new Date().format("yyyyMMdd_HHmmss")
+                    def fileName = "resultados/hashes/hashes_${timestamp}.txt"
+                    def targetPath = "JENKINS_HOME/workspace/folderName/subfolderName/projectNameFile"
+                    sh """
+                        echo "Calculando SHA-256 de los ficheros en ${targetPath}" > ${fileName}
+                        find ${targetPath} -type f -exec sha256sum {} \\; >> ${fileName}
+                    """
                 }
             }
         }
     }
-
     post {
         always {
-            echo 'Pipeline finalizado'
-            // Limpieza: intenta eliminar el contenedor si sigue corriendo
-            sh 'docker rm -f flask-app || true'
+            echo 'Pipeline completado.'
         }
     }
 }
