@@ -39,8 +39,8 @@ pipeline {
                     def reportContent = """\
                     Informe del Pipeline:
                     =========================
-                    Número de commits en las últimas dos semanas: ${commitCount}
-                    Estado de las pruebas: ✅ Exitosas
+                    Numero de commits en las ultimas dos semanas: ${commitCount}
+                    Estado de las pruebas: Exitosas
                     """
                     
                     // Guardar el informe en un archivo
