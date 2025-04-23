@@ -4,26 +4,30 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/larrayoz146585/jenkins.git'
+                // Obtén el código de la rama "feature" para CI
+                git branch: 'feature', url: 'https://github.com/larrayoz146585/jenkins.git'
+            }
+        }
+
+        stage('Fix Permissions') {
+            steps {
+                // Asegúrate de que los scripts tengan los permisos adecuados
+                sh 'chmod +x ./build.sh'
+                sh 'chmod +x ./test.sh'
+                sh 'chmod +x ./deploy.sh'
             }
         }
 
         stage('Build') {
             steps {
-                script {
-                    def startTime = System.currentTimeMillis()  // Obtén la hora de inicio
-                    sh './build.sh'
-                    def endTime = System.currentTimeMillis()    // Obtén la hora de finalización
-                    def duration = (endTime - startTime) / 1000  // Calcula la duración en segundos
-                    echo "Tiempo de ejecución del build: ${duration} segundos"
-                    // Guardar el resultado en un archivo de reporte
-                    writeFile file: 'build_time_report.txt', text: "Tiempo de ejecución del build: ${duration} segundos"
-                }
+                // Ejecuta el script de compilación
+                sh './build.sh'
             }
         }
 
         stage('Test') {
             steps {
+                // Ejecuta las pruebas del proyecto
                 sh './test.sh'
             }
         }
