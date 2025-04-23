@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                // Obtén el código de la rama "feature" para CI
+                // Clona la rama "feature" para CI
                 git branch: 'feature', url: 'https://github.com/larrayoz146585/jenkins.git'
             }
         }
@@ -14,7 +14,6 @@ pipeline {
                 // Asegúrate de que los scripts tengan los permisos adecuados
                 sh 'chmod +x ./build.sh'
                 sh 'chmod +x ./test.sh'
-                sh 'chmod +x ./deploy.sh'
             }
         }
 
@@ -29,6 +28,25 @@ pipeline {
             steps {
                 // Ejecuta las pruebas del proyecto
                 sh './test.sh'
+            }
+        }
+
+        stage('Generate Report') {
+            steps {
+                script {
+                    // Generar el informe con un KPI sencillo
+                    def commitCount = sh(script: 'git log --since="2 weeks ago" --pretty=oneline | wc -l', returnStdout: true).trim()
+                    def reportContent = """\
+                    Informe del Pipeline:
+                    =========================
+                    Número de commits en las últimas dos semanas: ${commitCount}
+                    Estado de las pruebas: ✅ Exitosas
+                    """
+                    
+                    // Guardar el informe en un archivo
+                    writeFile file: 'pipeline_report.txt', text: reportContent
+                    archiveArtifacts artifacts: 'pipeline_report.txt', allowEmptyArchive: true
+                }
             }
         }
     }
