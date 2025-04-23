@@ -49,16 +49,6 @@ pipeline {
                 sh './deploy.sh'
             }
         }
-
-        stage('Deploy (docker)') {
-            steps {
-                script {
-                    sh 'docker rm -f flask-app || true'
-                    sh 'docker build -t flask-app .'
-                    sh 'docker run -d --rm -p 8000:5000 --name flask-app flask-app'
-                }
-            }
-        }
     }
 
     post {
